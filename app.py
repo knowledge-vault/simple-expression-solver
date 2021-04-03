@@ -1,12 +1,30 @@
-#!flask/bin/python
-from flask import Flask
+from flask import Flask, request, jsonify
+from http import HTTPStatus
 
 app = Flask(__name__)
 
 
-@app.route('/')
+ROOT_ENDPOINT_MESSAGE = "Welcome to the simple expression solver app! :)\n Try calling the /solve endpoint."
+
+
+@app.route('/', methods=['GET'])
 def index():
-    return "Hello, World!"
+    return ROOT_ENDPOINT_MESSAGE
+
+
+@app.route('/solve', methods=['POST'])
+def solve():
+    try:
+        data = request.json
+        response = {
+            'result': eval(data['expression'])
+        }
+        return jsonify(response), HTTPStatus.OK
+    except:
+        response = {
+            'error': 'Failed parsing request payload! Expected application/json content type'
+        }
+        return jsonify(response), HTTPStatus.BAD_REQUEST
 
 
 if __name__ == '__main__':
